@@ -1,0 +1,62 @@
+{% extends "dashboard_base.html" %}
+{% block title %}LCC {{session.get('username')}} Home{% endblock %}
+{% block content %}
+    <div class="container justify-content-center ">
+      <!-- table to show all the issues -->
+       <div class="container text-center mt-2">
+            <h1 class="mt-2" >Resolved Issues</h1>
+        </div>
+        <!-- Included a searchbar from w3 jQuery on filter -->
+        <div class="searchbar d-flex justify-content-end mx-auto " style="max-width: 1200px;">
+            <input class="form-control my-2 w-25 " style="width:250px;" id="myInput" type="text" placeholder="Search...">
+        </div>
+        <div class="table-responsive">
+        <table class="table mx-auto"style="max-width: 1200px; width: 100%;" >
+        <thead class="ms-auto">
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">User_id</th>
+                <th scope="col">Username</th>
+                <th scope="col">Summary</th>
+                <th scope="col">Description</th>
+                <th scope="col">Raised on</th>
+                <th scope="col">Status</th>
+            </tr>
+        </thead>
+        <tbody id="myTable">
+            {% for issue in resolved_issues%}
+            <tr>
+                <td><a href="/issue_detail?id={{issue.issue_id}}">{{issue.issue_id}}</a></td>
+                {% if session.get('role') == 'admin'%}
+                <td><a href="/manage_users?id={{issue.user_id}}">{{issue.user_id}}</a></td>
+                {% else %}
+                <td>{{issue.user_id}}</td>
+                {% endif %}
+                <td>{{issue.username}}</td>
+                <td>{{issue.summary}}</td>
+                <td>{{issue.description}}</td>
+                <td>{{issue.created_at}}</td>
+                <!-- ādded some colour change for status tracking -->
+                <td class="{% if issue.status == 'open'%} bg-success text-white {% endif %}
+                {% if issue.status=='stalled'%} bg-warning {% endif %}
+                {% if issue.status== 'resolved'%} bg-secondary {% endif %}">
+                {{issue.status| capitalize}}</td>
+            </tr>
+            {% endfor %}
+            
+         </tbody>   
+        </table>
+    </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function(){
+          $("#myInput").on("keyup", function() {
+            var value = $(this).val().toLowerCase();
+            $("#myTable tr").filter(function() {
+                $(this).toggle($(this).text().toString().toLowerCase().indexOf(value) > -1);
+            });
+          });
+        });
+        </script>
+{% endblock %}

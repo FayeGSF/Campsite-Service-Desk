@@ -1,0 +1,87 @@
+.welcome-text{
+    position:relative;
+    z-index: 2;
+    color: rgb(6, 47, 6);
+    font-size: 48px;
+    font-weight: bold;
+}
+.quick-links ul{
+    list-style-type: none;
+    font-size: 24px;
+    color: rgb(19, 14, 72);
+}
+
+.quick-links a{
+     text-decoration: none;
+     color: brown;
+     font-weight: bold;
+}
+
+.bg-image{
+    background-image: url(../static/background_pic/header_pic.jpg);
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    background-color: rgba(251, 247, 247, 0.5);
+    background-blend-mode: overlay;
+}
+
+.navbar{
+    background-color: rgb(5, 53, 12);
+    padding:10px;
+}
+
+.nav-link {
+    color:antiquewhite;
+    font-size: 20px;
+}
+.navbar-brand{
+    font-weight: bold;
+    font-size: 30px;
+    color:antiquewhite;
+}
+.nav-link:hover{
+color:antiquewhite;
+}
+.navbar-brand:hover{
+    color:antiquewhite;
+}
+
+.navbar-toggler-icon{
+
+    filter: invert(95%) sepia(15%) saturate(300%) hue-rotate(10deg);
+}
+
+.navbar-toggler {
+    border: 2px solid #FAEBD7; 
+}
+
+.navbar-toggler:focus, 
+.navbar-toggler:active {
+    outline: none;
+    box-shadow: none;
+}
+
+.footer{
+    width:100%;
+    background-color: rgb(5, 42, 10);
+    color:antiquewhite;
+}
+h1{
+    color: rgb(5, 53, 12);  
+}
+.register-header{
+    background-color: rgb(5, 53, 12);
+    color:antiquewhite;
+    padding:10px;
+}
+
+.home-btn{
+    background-color:  rgb(128, 39, 7);
+    color: antiquewhite;
+}
+
+.home-btn:hover{
+    background-color:  rgb(199, 96, 6);
+    color: antiquewhite;
+}

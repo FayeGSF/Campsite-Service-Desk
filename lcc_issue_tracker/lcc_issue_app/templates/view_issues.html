@@ -1,0 +1,81 @@
+{% extends "dashboard_base.html" %}
+{% block title %}LCC {{session.get('username')}} Home{% endblock %}
+{% block content %}
+<!-- flash message if issue detail does not exist -->
+{% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+    <div class="container justify-content-center ">
+      <!-- table to show all the issues -->
+      <div class="header-wrapper text-center mt-2">
+            <h1 class="mt-2" >Issues</h1>
+       </div>
+        
+        <!-- Included a searchbar from w3 jQuery on filter -->
+        <div class="searchbar d-flex justify-content-end mx-auto"  style="max-width: 1200px;">
+            <input class="form-control my-2 w-25" style="width:250px;" id="myInput" type="text" placeholder="Search...">
+        </div>
+        <div class="table-responsive">
+            <table class="table mx-auto"style="max-width: 1200px; width: 100%;" >
+            <thead class="ms-auto">
+                <tr>
+                    <th scope="col" class="col-1 text-center"> ID</th>
+                    <th scope="col" class="col-1">User_id</th>
+                    <th scope="col"class="col-2">Username</th>
+                    <th scope="col"class="col-2">Summary</th>
+                    <th scope="col" class="col-3">Description</th>
+                    <th scope="col"class="col-2">Raised on</th>
+                    <th scope="col" class="col-1">Status</th>
+                </tr>
+            </thead>
+            <tbody id="myTable">
+                {% for issue in issues %}
+                <tr>
+                    <td class="col-1 text-center"><a href="/issue_detail?id={{issue.issue_id}}">{{issue.issue_id}}</a></td>
+                    {% if session.get('role') == 'admin' %}
+                    <td class="col-1"><a href="/manage_users?id={{issue.user_id}}">{{issue.user_id}}</a></td>
+                    {% else %}
+                    <td class="col-1">{{issue.user_id}}</td>
+                    {% endif %}
+                    <td>{{issue.username}}</td>
+                    <td>{{issue.summary}}</td>
+                    <td>{{issue.description}}</td>
+                    <td>{{issue.created_at}}</td>
+                    <!-- ādded some colour change for status tracking -->
+                    <td class="{% if issue.status == 'open'%} bg-success text-white {% endif %}
+                    {% if issue.status=='stalled'%} bg-warning {% endif %}
+                    {% if issue.status== 'resolved'%} bg-secondary {% endif %}">
+                    {{issue.status| capitalize}}</td>
+                </tr>
+                {% endfor %}
+                {% if not issues %}
+                <tr>
+                <td colspan="7" class="text-center text-muted no_issues_text">{{no_issues_message}}</td>
+                </tr>
+                {% endif %}
+                    
+            </tbody>   
+            </table>
+        </div>
+    </div>
+<!-- general search bar, does a blanket search, case insensitive from w3 JQuery filter table -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function(){
+          $("#myInput").on("keyup", function() {
+            var value = $(this).val().toLowerCase();
+            $("#myTable tr").filter(function() {
+                $(this).toggle($(this).text().toString().toLowerCase().indexOf(value) > -1);
+            });
+          });
+        });
+        </script>
+
+{% endblock %}

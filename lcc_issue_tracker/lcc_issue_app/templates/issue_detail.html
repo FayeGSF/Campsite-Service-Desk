@@ -1,0 +1,146 @@
+{% extends "dashboard_base.html" %}
+{% block title %}LCC {{session.get('username')}} Home{% endblock %}
+{% block content %}
+
+<!-- ISSUES SECTION -->
+<!-- Alert message to confirm update of issue -->
+{% with messages = get_flashed_messages(with_categories=True) %}
+{% if messages %}
+    {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+    <div class=" container d-flex flex-column justify-content-center align-items-center w-100 ">
+        <div class="card w-100 my-4 ">
+            <div class="card-header h-25 text-center">
+                <h1>Issue #{{issue_id}}</h1>
+            </div>
+            <form method="POST" action="/update_issue?id={{ issue_id }}">
+            <div class="card-body">
+                <div class="row">
+                    <div class ="col-md-3">
+                        <div class="form-group mb-2">
+                            <label for="exampleFormControlTextarea1">Raised by:</label>
+                            <textarea class="form-control" id="user_id" name="user_id" rows="1"  max="255" disabled >{{issue_detail.user_id}} : {{issue_detail.username}} ({{issue_detail.role}})</textarea>
+                        </div>
+                    </div>    
+                </div>
+                <div class="row">
+                    <div class ="col-md-3">
+                        <div class="form-group mb-2">
+                            <label for="exampleFormControlTextarea1">Created at:</label>
+                            <textarea class="form-control" id="created_at" name="created_at" rows="1"  max="255" disabled >{{issue_detail.created_at}}</textarea>
+                        </div>
+                    </div>    
+                </div>
+                <div class="form-group mb-2">
+                    <label for="issue_status">Status:</label>
+                    <!-- restrict status modification if role == 'visitor' -->
+                     <!-- if issue status is 'resolved' it will be greyed out and move to resolved_issue  -->
+                    <select id="issue_status" name="issue_status" class="form-control" required
+                            {% if session.get('role') == 'visitor' or issue_detail.status == 'resolved' %} disabled {% endif %}>
+                        <option value="new" {% if issue_detail.status == 'new' or session.get('role' )== 'visitor' %} selected {% endif %}>New</option>
+                        <option value="open" {% if issue_detail.status == 'open' %} selected {% endif %}>Open</option>
+                        <option value="stalled" {% if issue_detail.status == 'stalled' %} selected {% endif %}>Stalled</option>
+                        <option value="resolved" {% if issue_detail.status == 'resolved' %} selected {% endif %}>Resolved</option>
+                    </select>
+                </div>
+                <div class="form-group mb-2">
+                    <label for="exampleFormControlTextarea1">Summary:</label>
+                    <textarea class="form-control" id="summary" name="summary" rows="2"  max="255" disabled >{{issue_detail.summary}} </textarea>
+                </div>
+                <div class="form-group mb-2">
+                    <label for="exampleFormControlTextarea1">Description:</label>
+                    <textarea class="form-control" id="description" name="description" rows="6" disabled >{{issue_detail.description}}</textarea>
+                </div>
+                {% if session.get('role') != 'visitor' and issue_detail.status != 'resolved'%}
+                <div class="container-button text-center my-3">
+                    <button class="btn btn-primary" type="submit">Update Issue</button>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+<!--  COMMENT SECTION -->
+ <!-- add comment button -->
+    <p class="container d-flex  justify-content-start">
+        <button class="btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAddComment" aria-expanded="false" aria-controls="collapseAddComment">
+        Add Comment
+        </button> 
+    </p> 
+    <!-- add comment section -->
+    <div class="container justify-content-center mb-4">
+        <div class="collapse" id="collapseAddComment">
+            <div class="card card-body border-0">
+                <form method="POST" action="{{ url_for('add_comment', id=issue_id) }}">
+                    <input type="hidden" name="issue_id" value="{{issue_detail['issue_id']}}">
+                    <div class="row">
+                        <div class ="col-md-3">
+                            <div class="form-group mb-2 ">
+                                <label for="exampleFormControlTextarea1">Raised by:</label>
+                                <textarea class="form-control " id="user_id" name="user_id" value="{{session.get('username')}}" readonly >{{session.get('username')}}</textarea>
+                            </div>
+                        </div>
+                        <div class ="container">
+                            <div class="form-group mb-2">
+                                <label for="exampleFormControlTextarea1">Comment:</label>
+                                <textarea class="form-control" id="context" name="context" rows="4"  max="255" required></textarea>
+                            </div>
+                        </div>       
+                    </div>
+                    <div class="container mt-2">
+                        <button type="submit" class="btn btn-success">Submit Comment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+<!-- if no existing comment, show message -->
+    {% if not comments %}
+    <div class="container d-flex justify-content-center">
+        <p style="font-style: italic;">{{ no_comment_message }}</p> 
+    </div> 
+</div> 
+    {% else %}
+<!-- show comment -->
+            <div class="card card-body border-0 container justify-content-center ">
+                    {% for comment in comments %}
+                    <div class="card card-comment container my-2">
+                        <!-- some css style for mobile viewing -->
+                        <div class=" d-flex card-header col justify-content-start" 
+                        style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+                            <!-- <div class ="mini-profile-pic"> -->
+                                <div class="profile-image mx-2" style="flex-shrink:0;">
+                                    {% if comment.profile_image %}
+                                        <img src="{{ url_for('static', filename='profile_pic/' + comment.profile_image) }}" alt="Profile Image" class="img-thumbnail" style="width: 50px; height: 50px;">
+                                    {% else %}
+                                        <img src="{{ url_for('static', filename='profile_pic/default.jpg') }}" alt="Default Profile Image" class="img-thumbnail" style="width: 50px; height: 50px;">
+                                    {% endif %}
+                                </div>
+                            <!-- </div>  -->
+                            <div class ="header username" style="flex: 1;">
+                                <b>Comment by: </b>{{comment.username}} <i>({{ comment.role }})</i>
+                            </div>
+                            <div class ="header created_at d-flex col justify-content-end" style="flex: 1; text-align: right;">
+                                {{comment.created_at}}
+                            </div>    
+                        </div> 
+                        <div class="card-body">
+                            <div class="context">
+                                <p class="card-text">{{comment.context}}</p>
+                            </div>
+                        </div> 
+                    </div>
+                    {% endfor %}
+    </div>
+    </div>
+                {% endif %}
+<!-- overall wrapp div tag -->
+    </div>
+</div>
+{% endblock %}
+
+
+
